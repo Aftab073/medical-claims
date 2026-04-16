@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medical-claims-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Optional: Mount the app directory for live-reloading during development
+      # - ./app:/app/app
+    env_file:
+      - .env
+    environment:
+      # You can override variables here if needed
+      - GROQ_MODEL=llama-3.3-70b-versatile
+      - MAX_PDF_SIZE_MB=20
+    restart: unless-stopped

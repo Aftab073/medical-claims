@@ -1,0 +1,31 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Environment variables
+.env
+
+# Sample files / scratch
+scratch_ocr_test.py
+explain_demo.py
+final_image_protected.pdf

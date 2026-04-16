@@ -53,6 +53,24 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
+## Docker Deployment (Recommended)
+
+To run the entire pipeline fully containerized without local Python environments:
+
+1. **Configure Environment:**
+   Create a `.env` file and add your `GROQ_API_KEY`.
+   ```bash
+   cp .env.example .env
+   ```
+   
+2. **Build and Spin Up Engine:**
+   ```bash
+   docker-compose up --build -d
+   ```
+The container safely handles dependency builds (`fitz`, `cv2`, etc.) and exposes your production endpoints natively at `http://localhost:8000`.
+
+---
+
 ## API Usage
 
 ### POST /api/process
