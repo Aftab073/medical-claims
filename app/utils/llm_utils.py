@@ -1,5 +1,5 @@
 """
-LLM utilities — thin wrappers around LangChain's ChatOpenAI.
+LLM utilities — thin wrappers around LangChain's ChatGroq.
 
 Provides:
 * get_llm()           — singleton-ish LLM handle (model configurable via env)
@@ -18,7 +18,7 @@ from functools import lru_cache
 from typing import Any, Optional, Type
 
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+DEFAULT_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
 DEFAULT_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.0"))    # deterministic
 MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
 RETRY_DELAY = float(os.getenv("LLM_RETRY_DELAY", "2.0"))
@@ -38,12 +38,12 @@ RETRY_DELAY = float(os.getenv("LLM_RETRY_DELAY", "2.0"))
 # ---------------------------------------------------------------------------
 
 @lru_cache(maxsize=1)
-def get_llm(model: Optional[str] = None, temperature: Optional[float] = None) -> ChatOpenAI:
+def get_llm(model: Optional[str] = None, temperature: Optional[float] = None) -> ChatGroq:
     """
-    Return a cached ChatOpenAI instance.
-    API key is read from OPENAI_API_KEY env var automatically by LangChain.
+    Return a cached ChatGroq instance.
+    API key is read from GROQ_API_KEY env var automatically by LangChain.
     """
-    return ChatOpenAI(
+    return ChatGroq(
         model=model or DEFAULT_MODEL,
         temperature=temperature if temperature is not None else DEFAULT_TEMPERATURE,
         max_retries=2,        # network-level retries by LangChain

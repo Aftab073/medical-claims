@@ -1,7 +1,7 @@
 # Medical Claims Processor — Production FastAPI + LangGraph Service
 
 A multi-agent PDF processing pipeline that classifies, extracts, and structures
-medical insurance claim data using LangGraph orchestration and GPT-4o.
+medical insurance claim data using LangGraph orchestration and Llama 3 (via Groq).
 
 ---
 
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 
 # 4. Configure environment
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Edit .env and add your GROQ_API_KEY
 
 # 5. Run the server
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -88,7 +88,7 @@ START
   ▼
 [segregator_node]
   • Parses PDF bytes with PyMuPDF (page-by-page)
-  • Sends each page's text to GPT-4o for classification
+  • Sends each page's text to the LLM for classification
   • Maps each page to ONE of 9 document types
   • Groups pages: { "discharge_summary": [page4], "itemized_bill": [page9], ... }
   • Falls back to keyword heuristics if LLM confidence < 0.45
@@ -136,8 +136,8 @@ START
 
 | Variable | Default | Description |
 |---|---|---|
-| `OPENAI_API_KEY` | — | **Required** — your OpenAI API key |
-| `OPENAI_MODEL` | `gpt-4o` | Model to use for all LLM calls |
+| `GROQ_API_KEY` | — | **Required** — your Groq API key |
+| `GROQ_MODEL` | `llama3-70b-8192` | Model to use for all LLM calls |
 | `LLM_TEMPERATURE` | `0.0` | Keep at 0 for deterministic extraction |
 | `LLM_MAX_RETRIES` | `3` | Retry count on JSON parse failure |
 | `LLM_RETRY_DELAY` | `2.0` | Seconds between retries |
