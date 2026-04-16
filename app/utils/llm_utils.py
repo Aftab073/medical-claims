@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-DEFAULT_MODEL = os.getenv("GROQ_MODEL", "llama3-70b-8192")
+DEFAULT_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 DEFAULT_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.0"))    # deterministic
 MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
 RETRY_DELAY = float(os.getenv("LLM_RETRY_DELAY", "2.0"))
@@ -290,3 +290,51 @@ def _parse_json_response(raw: str) -> dict[str, Any]:
         return json.loads(match.group(0))
 
     raise json.JSONDecodeError("No JSON object found in LLM response", raw, 0)
+
+
+def extract_text_via_vision(b64_image: str, page_number: int, retries: int = MAX_RETRIES) -> str:
+    """
+    Extract text from an image using Groq's Vision model.
+    Used as an OCR fallback for image-based PDFs.
+    """
+    logger.info("Initializing Vision OCR for page %d...", page_number)
+    # We use meta-llama/llama-4-scout-17b-16e-instruct for high accuracy OCR while managing limits
+    llm = ChatGroq(
+        model="meta-llama/llama-4-scout-17b-16e-instruct",
+        temperature=0.0,
+        max_retries=2,
+        request_timeout=60,
+    )
+    
+    prompt = "Extract and transcribe all text from this image exactly as written. Provide ONLY the extracted text, no introductory remarks. If the image is completely blank, return the word BLANK."
+    
+    messages = [
+        HumanMessage(content=[
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
+        ])
+    ]
+
+    last_error = None
+    for attempt in range(1, retries + 1):
+        try:
+            # Sleep to strictly enforce Rate Limits (e.g. 15 RPM on free tier)
+            if attempt > 1 or page_number > 1:
+                time.sleep(4.5) 
+            
+            response = llm.invoke(messages)
+            raw = response.content if hasattr(response, "content") else str(response)
+            
+            # Clean up the output
+            clean = raw.strip()
+            if clean.upper() == "BLANK" or ("BLANK" in clean and len(clean) < 15):
+                return ""
+            return clean
+            
+        except Exception as exc:
+            last_error = exc
+            logger.warning("Vision OCR failed (attempt %d/%d) on page %d: %s", attempt, retries, page_number, exc)
+            time.sleep(RETRY_DELAY * 2)
+
+    logger.error("Vision OCR completely failed for page %d. Errors: %s", page_number, last_error)
+    return ""

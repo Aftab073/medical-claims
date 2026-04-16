@@ -13,11 +13,13 @@ from __future__ import annotations
 
 import io
 import logging
+import base64
 from typing import Optional
 
 import fitz  # PyMuPDF
 
 from app.graph.state import PageContent
+from app.utils.llm_utils import extract_text_via_vision
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,15 @@ def extract_pages(pdf_bytes: bytes) -> list[PageContent]:
     for page_index in range(len(doc)):
         page = doc[page_index]
         text = _extract_text(page)
+        
+        # New OCR fallback logic
+        if len(text) < 30:
+            logger.info("Page %d has < 30 chars, triggering Vision OCR fallback...", page_index + 1)
+            pix = page.get_pixmap(dpi=150)
+            img_bytes = pix.tobytes("png")
+            b64_img = base64.b64encode(img_bytes).decode("utf-8")
+            text = extract_text_via_vision(b64_img, page_index + 1)
+            
         pages.append(
             PageContent(
                 page_number=page_index + 1,   # 1-indexed for human readability

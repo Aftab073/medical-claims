@@ -13,6 +13,10 @@ from __future__ import annotations
 import logging
 import os
 import time
+from dotenv import load_dotenv
+
+# Load environment variables early
+load_dotenv()
 import uuid
 from contextlib import asynccontextmanager
 from typing import Any

@@ -137,7 +137,7 @@ START
 | Variable | Default | Description |
 |---|---|---|
 | `GROQ_API_KEY` | — | **Required** — your Groq API key |
-| `GROQ_MODEL` | `llama3-70b-8192` | Model to use for all LLM calls |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Model to use for all LLM calls |
 | `LLM_TEMPERATURE` | `0.0` | Keep at 0 for deterministic extraction |
 | `LLM_MAX_RETRIES` | `3` | Retry count on JSON parse failure |
 | `LLM_RETRY_DELAY` | `2.0` | Seconds between retries |

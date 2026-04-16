@@ -11,6 +11,7 @@ langchain-groq==0.2.1
 
 # ── LLM provider ──────────────────────────────────────────────────────────
 groq==0.11.0
+httpx==0.27.2                   # Pinned to fix groq 'proxies' kwarg crash
 
 # ── PDF processing ────────────────────────────────────────────────────────
 PyMuPDF==1.24.13                # fitz — fast, accurate PDF text + table extraction
